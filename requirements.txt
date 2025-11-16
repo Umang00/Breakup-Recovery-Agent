@@ -1,5 +1,16 @@
+# Web Framework
 streamlit==1.44.1
+
+# Image Processing
 pillow==11.1.0
-agno>=2.2.10
-google-genai>=1.50.1
-ddgs
+
+# AI Frameworks
+agno==2.2.10
+google-genai==1.50.1
+
+# Search Tools
+ddgs==0.2.0
+
+# Configuration Management
+python-decouple==3.8
+PyYAML==6.0.2
