@@ -11,10 +11,10 @@ An AI-powered application designed to help you emotionally recover from breakups
 ## ✨ Features
 
 ### 🧠 Multi-Agent Support Team
-- **Therapist Agent:** Offers empathetic support and coping strategies
-- **Closure Agent:** Helps you write emotional messages for cathartic release
-- **Routine Planner Agent:** Creates personalized 7-day recovery plans
-- **Brutal Honesty Agent:** Provides direct, objective feedback when you need it
+- **Therapist Agent:** Provides empathetic support with emotional validation, gentle humor, and relatable experiences
+- **Closure Agent:** Creates comprehensive closure toolkits with unsent message templates, release exercises, and rituals
+- **Routine Planner Agent:** Designs personalized 7-day recovery challenges with progressive activities and music playlists
+- **Brutal Honesty Agent:** Offers objective analysis, root cause insights, and actionable growth opportunities
 
 ### 🔒 Privacy-First Design
 - **No user accounts** - Start immediately without registration
@@ -33,10 +33,12 @@ An AI-powered application designed to help you emotionally recover from breakups
 - **Bring your own** - Option to use your personal Gemini API key
 - **Secure handling** - Keys are password-masked and never logged
 
-### ⚙️ Configurable Prompts
-- All AI prompts externalized to YAML configuration
-- Easy to customize agent personalities and behaviors
-- No code changes required to tune responses
+### ⚙️ Advanced Prompt Engineering
+- **Optimized prompts** using best practices in prompt engineering
+- **Structured outputs** with clear formatting and word count guidelines
+- **Context-aware** instructions for handling text and image inputs
+- **Actionable guidance** with specific, measurable instructions
+- All prompts externalized to YAML - customize without code changes
 
 ---
 
@@ -51,8 +53,15 @@ An AI-powered application designed to help you emotionally recover from breakups
    ```
 
 2. **Install Dependencies:**
+   
+   Using pip:
    ```bash
    pip install -r requirements.txt
+   ```
+   
+   Or using uv (faster):
+   ```bash
+   uv pip install -r requirements.txt
    ```
 
 3. **Configure API Key (Optional):**
@@ -89,21 +98,39 @@ ALLOW_USER_API_KEY=true
 
 ### Customizing Prompts
 
-All agent prompts are in `config/prompts.yaml`. You can customize:
+All agent prompts are in `config/prompts.yaml`. The prompts are optimized using advanced prompt engineering techniques:
 
-- Agent instructions (personality and behavior)
-- Runtime prompts (what they ask the AI)
-- UI text and loading messages
-- Input limits and model settings
+**What You Can Customize:**
+- **Agent Instructions:** Role definitions, core principles, tone guidelines, and safety boundaries
+- **Runtime Prompts:** Structured prompts with clear sections, formatting requirements, and word count guidelines
+- **UI Elements:** App title, welcome messages, section titles, and loading messages
+- **Model Settings:** Model ID, temperature, and token limits
+- **Input Limits:** Maximum text length, file size, and file count
+
+**Prompt Engineering Features:**
+- Clear role definitions with specific expertise
+- Structured output formats with markdown requirements
+- Context-aware instructions for multi-modal inputs
+- Progressive difficulty (for routine planner)
+- Evidence-based suggestions
+- Empowerment-focused language
 
 Example:
 ```yaml
 agents:
   therapist:
     instructions:
-      - "You are an empathetic therapist that:"
-      - "1. Listens with empathy and validates feelings"
-      # Add or modify instructions here
+      - "You are a licensed mental health therapist specializing in relationship recovery..."
+      - "Core Principles:"
+      - "  1. Active Listening: Acknowledge and validate ALL emotions..."
+    runtime_prompt: |
+      **Context Analysis:**
+      User's emotional state: {user_input}
+      
+      **Your Task:**
+      Provide a compassionate response with:
+      1. **Validates Their Feelings** (First paragraph)
+      ...
 ```
 
 ---
@@ -152,32 +179,41 @@ We take your privacy seriously:
 ## 🎯 Agents Overview
 
 ### 🤗 Therapist Agent
-Provides empathetic emotional support with:
-- Validation of your feelings
-- Gentle, comforting words
-- Relatable breakup experiences
-- Encouragement and hope
+Provides empathetic emotional support with a structured framework:
+- **Emotional Validation:** Acknowledges and validates all feelings without judgment
+- **Understanding:** Reflects back what you're experiencing and normalizes your pain
+- **Gentle Perspective:** Offers insights with appropriate light humor when healing
+- **Hope & Encouragement:** Ends with forward-looking, empowering statements
+- **Multi-modal Analysis:** Analyzes emotional cues from both text and images
+
+**Response Format:** 150-250 words with clear paragraph structure
 
 ### ✍️ Closure Agent
-Helps you find closure through:
-- Templates for unsent messages
-- Emotional release exercises
-- Closure rituals and practices
-- Strategies for moving forward
+Creates comprehensive closure toolkits with four distinct components:
+- **Unsent Message Template:** Fill-in templates for expressing unsent feelings
+- **Emotional Release Exercise:** Step-by-step exercises (5-7 steps) with therapeutic benefits
+- **Closure Ritual:** Specific, meaningful rituals with symbolism and timing
+- **Moving Forward Strategy:** 3-step action plan (immediate, short-term, long-term)
+
+**Response Format:** 300-400 words with clear markdown sections
 
 ### 📅 Routine Planner Agent
-Creates personalized recovery plans with:
-- 7-day daily activity challenges
-- Self-care routines
-- Social media detox strategies
-- Mood-lifting music suggestions
+Designs personalized 7-day recovery challenges with progressive difficulty:
+- **Day-by-Day Breakdown:** Morning, afternoon, and evening activities for each day
+- **Progressive Structure:** Days 1-2 (emotional release) → Days 3-4 (movement/connection) → Days 5-6 (confidence building) → Day 7 (celebration)
+- **Social Media Detox:** Specific guidelines with limits and alternative activities
+- **Healing Playlists:** Three categories (Emotional Release, Empowerment, Hope & Healing) with 5-7 songs each and therapeutic explanations
+
+**Response Format:** 500-700 words with specific, actionable activities
 
 ### 💪 Brutal Honesty Agent
-Offers direct, unfiltered feedback:
-- Objective analysis of the situation
-- Clear explanations of what went wrong
-- Growth opportunities
-- Actionable steps for the future
+Offers objective, constructive analysis in four comprehensive sections:
+- **Objective Analysis:** Facts, patterns, red flags, and contributing factors
+- **Root Cause Analysis:** Core issues, communication breakdowns, compatibility problems
+- **Growth Opportunities:** Self-awareness, relationship skills, boundaries, values alignment
+- **Actionable Steps:** 5-7 specific steps (immediate, short-term, medium-term, long-term, prevention)
+
+**Response Format:** 400-600 words with direct but respectful language
 
 ---
 
@@ -185,16 +221,31 @@ Offers direct, unfiltered feedback:
 
 ### Changing Agent Behavior
 
-Edit `config/prompts.yaml` to modify:
+Edit `config/prompts.yaml` to modify agent personalities, instructions, and runtime prompts. The prompts use advanced prompt engineering techniques:
 
+**Key Areas to Customize:**
+- **Instructions:** Define role, core principles, tone guidelines, and safety boundaries
+- **Runtime Prompts:** Structure the prompts with clear sections, formatting requirements, and word counts
+- **Response Format:** Specify markdown formatting, paragraph structure, and length guidelines
+
+Example structure:
 ```yaml
 agents:
   therapist:
     instructions:
-      - "Your custom instructions here"
+      - "You are a licensed mental health therapist..."
+      - "Core Principles:"
+      - "  1. Active Listening: ..."
+      - "Response Structure:"
+      - "  - Start with emotional validation..."
     runtime_prompt: |
-      Your custom prompt template here
-      User input: {user_input}
+      **Context Analysis:**
+      User's emotional state: {user_input}
+      
+      **Your Task:**
+      Provide a compassionate response that:
+      1. **Validates Their Feelings** (First paragraph)
+      ...
 ```
 
 ### UI Customization
@@ -206,6 +257,21 @@ ui:
   app_title: "Your Custom Title"
   welcome_message: "Your custom welcome message"
   privacy_notice: "Your custom privacy notice"
+  section_titles:
+    therapist: "🤗 Your Custom Title"
+  loading_messages:
+    therapist: "Your loading message..."
+```
+
+### Model Configuration
+
+Adjust model settings in `config/prompts.yaml`:
+
+```yaml
+model:
+  id: "gemini-2.5-flash"  # Change model version
+  temperature: 0.7         # Adjust creativity (0.0-1.0)
+  max_tokens: 2000         # Maximum response length
 ```
 
 ---
@@ -219,7 +285,7 @@ streamlit==1.44.1          # Web framework
 pillow==11.1.0             # Image processing
 agno==2.2.10               # AI agent framework
 google-genai==1.50.1       # Google Gemini API
-ddgs==0.2.0                # DuckDuckGo search
+ddgs                        # DuckDuckGo search (latest)
 python-decouple==3.8       # Environment config
 PyYAML==6.0.2              # YAML parsing
 ```
