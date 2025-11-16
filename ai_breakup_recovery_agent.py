@@ -42,7 +42,7 @@ atexit.register(cleanup_temp_files)
 def load_config() -> Dict[str, Any]:
     """Load configuration from YAML file"""
     try:
-        with open(CONFIG_PATH, 'r') as f:
+        with open(CONFIG_PATH, 'r', encoding='utf-8') as f:
             config = yaml.safe_load(f)
         logger.info(f"Configuration loaded successfully from {CONFIG_PATH}")
         return config

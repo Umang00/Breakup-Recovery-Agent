@@ -9,7 +9,7 @@ agno==2.2.10
 google-genai==1.50.1
 
 # Search Tools
-ddgs==0.2.0
+ddgs
 
 # Configuration Management
 python-decouple==3.8
