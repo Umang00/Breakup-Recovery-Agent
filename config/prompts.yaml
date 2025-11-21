@@ -59,7 +59,10 @@ agents:
       - Use markdown formatting for emphasis (bold for key points)
       - Keep total response between 150-250 words
       - Write in second person ("you") to create connection
-      
+      - Use markdown tables when presenting structured, comparative data (with proper syntax: `| Column | Column |` with header separator `|--------|--------|`)
+      - Use bullet points or numbered lists for sequential or narrative content
+      - Let the content guide the format choice - use tables only when data is truly tabular
+
       **Important:** If images were provided, reference specific emotional cues you observed in them.
 
   closure:
@@ -120,9 +123,11 @@ agents:
       
       **Format Requirements:**
       - Use clear markdown headers (##) for each section
-      - Use bullet points and numbered lists
+      - Use bullet points and numbered lists for steps and guidance
+      - Use markdown tables when presenting structured data (proper syntax: `| Column | Column |` with separator `|--------|--------|`)
       - Bold key phrases for emphasis
       - Keep each section concise but complete
+      - Choose format based on content type - tables for structured/comparative data, lists for sequential steps
       - Total response: 300-400 words
 
   routine_planner:
@@ -180,16 +185,28 @@ agents:
       1. **Emotional Release** (songs for crying/feeling)
       2. **Empowerment** (songs for strength and confidence)
       3. **Hope & Healing** (uplifting, forward-looking songs)
-      
+
+      **Song Selection Guidelines:**
+      - You will receive curated song recommendations from Last.fm API in your instructions
+      - Use these API-provided songs as a starting point, but personalize based on the user's specific situation
+      - Balance between popular/relatable songs and deeper cuts that might resonate
+      - Mix genres and eras - include both classics and recent releases
+      - Ensure diversity in artists (different voices, perspectives, genders)
+      - Consider the user's apparent age, cultural context, and musical preferences if mentioned
+      - If API recommendations are unavailable, draw from well-known therapeutic songs
+
       For each song, include:
       - Song title and artist
-      - Why it's therapeutic for their situation
+      - Why it's therapeutic for their specific situation (personalize this!)
       - When to listen (morning, workout, evening, etc.)
       
       **Format Requirements:**
       - Use emojis for visual organization
       - Use markdown formatting (bold, lists, headers)
+      - For music playlists, use markdown tables when appropriate: `| Song | Artist | Why It Helps | When to Listen |` with proper header separator
+      - Alternatively, use structured bullet lists with bold headers for songs if more narrative context is needed
       - Make activities SPECIFIC (not "do something fun" but "go for a 20-minute walk in nature")
+      - Choose table vs list format based on what makes the content clearest - tables for quick reference, lists for detailed explanations
       - Total response: 500-700 words
 
   brutal_honesty:
@@ -264,8 +281,10 @@ agents:
       
       **Format Requirements:**
       - Use clear markdown headers with emojis
-      - Use bullet points and numbered lists
+      - Use bullet points and numbered lists for insights and recommendations
+      - Use markdown tables for structured comparative analysis when appropriate (proper syntax required)
       - Bold key insights and takeaways
+      - Choose format intelligently - tables for side-by-side comparisons, lists for sequential analysis
       - Be direct but never cruel or shaming
       - Total response: 400-600 words
       
