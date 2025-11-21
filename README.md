@@ -11,10 +11,10 @@ An AI-powered application designed to help you emotionally recover from breakups
 ## ✨ Features
 
 ### 🧠 Multi-Agent Support Team
-- **Therapist Agent:** Provides empathetic support with emotional validation, gentle humor, and relatable experiences
-- **Closure Agent:** Creates comprehensive closure toolkits with unsent message templates, release exercises, and rituals
-- **Routine Planner Agent:** Designs personalized 7-day recovery challenges with progressive activities and music playlists
-- **Brutal Honesty Agent:** Offers objective analysis, root cause insights, and actionable growth opportunities
+- **Maya:** Provides empathetic support with emotional validation, gentle humor, and relatable experiences
+- **Harper:** Creates comprehensive closure toolkits with unsent message templates, release exercises, and rituals
+- **Jonas:** Designs personalized 7-day recovery challenges with progressive activities and music playlists
+- **Riya:** Offers objective analysis, root cause insights, and actionable growth opportunities
 
 ### 🔒 Privacy-First Design
 - **No user accounts** - Start immediately without registration
@@ -178,7 +178,7 @@ We take your privacy seriously:
 
 ## 🎯 Agents Overview
 
-### 🤗 Therapist Agent
+### 🤗 Maya
 Provides empathetic emotional support with a structured framework:
 - **Emotional Validation:** Acknowledges and validates all feelings without judgment
 - **Understanding:** Reflects back what you're experiencing and normalizes your pain
@@ -188,7 +188,7 @@ Provides empathetic emotional support with a structured framework:
 
 **Response Format:** 150-250 words with clear paragraph structure
 
-### ✍️ Closure Agent
+### ✍️ Harper
 Creates comprehensive closure toolkits with four distinct components:
 - **Unsent Message Template:** Fill-in templates for expressing unsent feelings
 - **Emotional Release Exercise:** Step-by-step exercises (5-7 steps) with therapeutic benefits
@@ -197,7 +197,7 @@ Creates comprehensive closure toolkits with four distinct components:
 
 **Response Format:** 300-400 words with clear markdown sections
 
-### 📅 Routine Planner Agent
+### 📅 Jonas
 Designs personalized 7-day recovery challenges with progressive difficulty:
 - **Day-by-Day Breakdown:** Morning, afternoon, and evening activities for each day
 - **Progressive Structure:** Days 1-2 (emotional release) → Days 3-4 (movement/connection) → Days 5-6 (confidence building) → Day 7 (celebration)
@@ -206,7 +206,7 @@ Designs personalized 7-day recovery challenges with progressive difficulty:
 
 **Response Format:** 500-700 words with specific, actionable activities
 
-### 💪 Brutal Honesty Agent
+### 💪 Riya
 Offers objective, constructive analysis in four comprehensive sections:
 - **Objective Analysis:** Facts, patterns, red flags, and contributing factors
 - **Root Cause Analysis:** Core issues, communication breakdowns, compatibility problems

@@ -5,7 +5,7 @@
 # Agent Instructions (personality and behavior guidelines)
 agents:
   therapist:
-    name: "Therapist Agent"
+    name: "Maya"
     instructions:
       - "You are a licensed mental health therapist specializing in relationship recovery and emotional healing."
       - "Your role is to provide empathetic, professional support to individuals navigating breakups."
@@ -63,7 +63,7 @@ agents:
       **Important:** If images were provided, reference specific emotional cues you observed in them.
 
   closure:
-    name: "Closure Agent"
+    name: "Harper"
     instructions:
       - "You are a closure and emotional release specialist with expertise in helping people process unresolved feelings."
       - "Your role is to help users express unsent emotions, find closure, and move forward."
@@ -126,7 +126,7 @@ agents:
       - Total response: 300-400 words
 
   routine_planner:
-    name: "Routine Planner Agent"
+    name: "Jonas"
     instructions:
       - "You are a recovery routine planner and wellness coach specializing in post-breakup recovery."
       - "Your role is to create personalized, actionable recovery plans that promote healing and growth."
@@ -193,7 +193,7 @@ agents:
       - Total response: 500-700 words
 
   brutal_honesty:
-    name: "Brutal Honesty Agent"
+    name: "Riya"
     instructions:
       - "You are a direct, objective relationship analyst who provides unfiltered, constructive feedback."
       - "Your role is to help users see their situation clearly, learn from it, and move forward with wisdom."
@@ -279,11 +279,11 @@ ui:
     ### Your AI-powered breakup recovery team is here to help!
     Share your feelings and chat screenshots, and we'll help you navigate through this tough time.
     
-    Our team of specialized AI agents will provide:
-    - 🤗 **Emotional Support** - Empathetic understanding and validation
-    - ✍️ **Closure Tools** - Help expressing unsent feelings
-    - 📅 **Recovery Plans** - Personalized 7-day healing challenges
-    - 💪 **Honest Perspective** - Direct, constructive feedback
+    Meet your recovery squad—each agent introduces themselves and automatically supports every submission:
+    - 🤗 **Maya** – “I’ll sit with you, listen closely, and reflect your feelings back with care so you feel truly heard.”
+    - ✍️ **Harper** – “I turn the unsent words in your heart into a message that releases what’s been stuck.”
+    - 📅 **Jonas** – “I share a personalized 7-day challenge that keeps you gently moving forward, one grounded step at a time.”
+    - 💪 **Riya** – “I give you straight, constructive feedback delivered with warmth, so you can see the next move clearly.”
 
   privacy_notice: |
     - Your conversations are NOT stored on our servers
@@ -292,10 +292,10 @@ ui:
     - Everything stays private between you and the AI
 
   section_titles:
-    therapist: "🤗 Emotional Support"
-    closure: "✍️ Finding Closure"
-    routine_planner: "📅 Your Recovery Plan"
-    brutal_honesty: "💪 Honest Perspective"
+    therapist: "🤗 Maya's Response"
+    closure: "✍️ Harper's Response"
+    routine_planner: "📅 Jonas's Response"
+    brutal_honesty: "💪 Riya's Response"
 
   loading_messages:
     therapist: "🤗 Getting empathetic support..."
@@ -305,7 +305,7 @@ ui:
 
 # Model Configuration
 model:
-  id: "gemini-2.5-flash"
+  id: "gemini-2.5-flash-preview-09-2025" #gemini-2.5-flash
   temperature: 0.7  # Balance between creativity and consistency
   max_tokens: 2000  # Maximum response length
 
