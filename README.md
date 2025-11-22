@@ -1,342 +1,299 @@
 # 💔 Breakup Recovery Squad
 
-> Helping hearts heal, one conversation at a time
+### Your AI-Powered Healing Journey Starts Here
 
-An AI-powered application designed to help you emotionally recover from breakups by providing support, guidance, and emotional outlet through a team of specialized AI agents. Built with **Streamlit** and **Agno**, powered by **Google's Gemini 2.5 Flash**.
+**The web app that helps you navigate heartbreak with four AI companions who actually understand.**
 
-**Made with ❤️ by Umang**
-
----
-
-## ✨ Features
-
-### 🧠 Multi-Agent Support Team
-- **Maya:** Provides empathetic support with emotional validation, gentle humor, and relatable experiences
-- **Harper:** Creates comprehensive closure toolkits with unsent message templates, release exercises, and rituals
-- **Jonas:** Designs personalized 7-day recovery challenges with progressive activities and music playlists
-- **Riya:** Offers objective analysis, root cause insights, and actionable growth opportunities
-
-### 🔒 Privacy-First Design
-- **No user accounts** - Start immediately without registration
-- **No data storage** - Your conversations are never saved on our servers
-- **Automatic cleanup** - Screenshots are temporarily processed and immediately deleted
-- **Local processing** - Everything happens in your browser session
-- **No tracking** - We don't collect analytics or personal information
-
-### 📷 Smart Chat Analysis
-- Upload screenshots of your conversations for deeper context
-- AI analyzes both text and visual emotional cues
-- Supports JPG, JPEG, and PNG formats (up to 10MB each)
-
-### 🔑 Flexible API Key Management
-- **Easy setup** - Use default API key (if configured) to start instantly
-- **Bring your own** - Option to use your personal Gemini API key
-- **Secure handling** - Keys are password-masked and never logged
-
-### ⚙️ Advanced Prompt Engineering
-- **Optimized prompts** using best practices in prompt engineering
-- **Structured outputs** with clear formatting and word count guidelines
-- **Context-aware** instructions for handling text and image inputs
-- **Actionable guidance** with specific, measurable instructions
-- All prompts externalized to YAML - customize without code changes
+[![Try it Live](https://img.shields.io/badge/Try%20it%20Live-Streamlit-FF4B4B?style=for-the-badge&logo=streamlit)](https://umang-breakup-recovery-agent.streamlit.app/)
+[![Made with Love](https://img.shields.io/badge/Made%20with-Love-red?style=for-the-badge&logo=heart)](https://github.com/Umang00)
+[![Powered by Gemini](https://img.shields.io/badge/Powered%20by-Gemini%202.5-4285F4?style=for-the-badge&logo=google)](https://deepmind.google/technologies/gemini/)
 
 ---
 
-## 🚀 Quick Start
+## What's New in v1.0
+
+- **Multi-Agent Support** - Four specialized AI agents working together
+- **Screenshot Analysis** - Upload chat screenshots for deeper context
+- **Curated Music Therapy** - 115 healing songs across 4 eras
+- **Privacy-First** - No accounts, no data storage, 100% private
+- **Smart Fragments** - Email signup won't interrupt your analysis
+
+**Try Now:** [umang-breakup-recovery-agent.streamlit.app](https://umang-breakup-recovery-agent.streamlit.app/)
+
+---
+
+## What is Breakup Recovery Squad?
+
+An AI-powered web application that helps you emotionally recover from breakups through:
+
+- **Emotional Support** - Get validated, understood, and gently guided forward
+- **Closure Tools** - Write unsent letters, perform release rituals, find peace
+- **7-Day Recovery Plan** - Progressive challenges with music therapy
+- **Honest Feedback** - Objective analysis without the sugarcoating
+
+### Why This Works
+
+| Feature | Benefit |
+|---------|---------|
+| **4 AI Agents** | Different perspectives for complete support |
+| **Multi-Modal** | Analyzes text AND screenshot images |
+| **Curated Songs** | 115 therapeutic songs spanning decades |
+| **No Account** | Start healing immediately, no barriers |
+| **100% Private** | Nothing stored, everything deleted |
+
+---
+
+## Meet Your Recovery Squad
+
+<table>
+<tr>
+<td width="25%" align="center">
+
+### Maya
+**The Therapist**
+
+Warm, empathetic support with gentle humor
+
+*"Your feelings are valid"*
+
+</td>
+<td width="25%" align="center">
+
+### Harper
+**The Closure Coach**
+
+Unsent letters, rituals, and release exercises
+
+*"Let it go, beautifully"*
+
+</td>
+<td width="25%" align="center">
+
+### Jonas
+**The Planner**
+
+7-day challenges with music therapy
+
+*"One day at a time"*
+
+</td>
+<td width="25%" align="center">
+
+### Riya
+**The Truth-Teller**
+
+Honest analysis, patterns, growth areas
+
+*"The truth heals faster"*
+
+</td>
+</tr>
+</table>
+
+---
+
+## Features
+
+### Multi-Agent AI Support
+- **Maya** - Emotional validation, gentle perspective, hope & encouragement
+- **Harper** - Unsent message templates, release exercises, closure rituals
+- **Jonas** - 7-day progressive challenge, morning/afternoon/evening activities
+- **Riya** - Root cause analysis, pattern recognition, actionable growth steps
+
+### Smart Screenshot Analysis
+- Upload chat screenshots for context
+- AI reads emotional cues from images
+- Supports JPG, PNG (up to 10MB each, 5 max)
+
+### Curated Music Therapy
+Jonas provides healing playlists from a database of 115 songs:
+
+| Category | Mood | Examples |
+|----------|------|----------|
+| **Emotional Release** | Sadness, Grief | Driver's License, Someone Like You |
+| **Empowerment** | Anger, Confidence | Good 4 U, Flowers, thank u next |
+| **Hope & Healing** | Calm, Optimism | Here Comes the Sun, Golden |
+
+Songs span 4 eras: Viral Now (2023-25), Gen Z (2018-22), Streaming Era (2008-17), Classics (Pre-2008)
+
+### Privacy-First Design
+- No user accounts required
+- No conversation storage
+- Screenshots deleted immediately after processing
+- No tracking or analytics on your content
+
+---
+
+## Quick Start
+
+### Prerequisites
+- Python 3.9+
+- Gemini API key ([Get one free](https://makersuite.google.com/app/apikey))
 
 ### Installation
 
-1. **Clone the Repository:**
-   ```bash
-   git clone https://github.com/Umang00/Breakup-Recovery-Agent.git
-   cd Breakup-Recovery-Agent
-   ```
+```bash
+# Clone the repository
+git clone https://github.com/Umang00/Breakup-Recovery-Agent.git
+cd Breakup-Recovery-Agent
 
-2. **Install Dependencies:**
-   
-   Using pip:
-   ```bash
-   pip install -r requirements.txt
-   ```
-   
-   Or using uv (faster):
-   ```bash
-   uv pip install -r requirements.txt
-   ```
+# Install dependencies
+pip install -r requirements.txt
 
-3. **Configure API Key (Optional):**
+# Set up environment
+cp .env.example .env
+# Edit .env and add: DEFAULT_GEMINI_API_KEY=your_key_here
 
-   If you want to provide a default API key so users don't need their own:
+# Run the app
+streamlit run ai_breakup_recovery_agent.py
+```
 
-   ```bash
-   cp .env.example .env
-   # Edit .env and add your Gemini API key
-   ```
+The app opens at **http://localhost:8501**
 
-   Get your API key from [Google AI Studio](https://makersuite.google.com/app/apikey)
+### Optional: Firebase Analytics
 
-4. **Run the Application:**
-   ```bash
-   streamlit run ai_breakup_recovery_agent.py
-   ```
-
-5. **Open your browser** to `http://localhost:8501`
+For email collection and analytics, set up Firebase:
+```bash
+cp .streamlit/secrets.toml.example .streamlit/secrets.toml
+# Add your Firebase service account credentials
+```
 
 ---
 
-## 🛠️ Configuration
+## Tech Stack
 
-### Environment Variables (`.env`)
+### Frontend
+| Technology | Purpose |
+|------------|---------|
+| **Streamlit** | Web framework |
+| **Pillow** | Image processing |
+
+### Backend & AI
+| Technology | Purpose |
+|------------|---------|
+| **Agno** | AI agent framework |
+| **Google Gemini 2.5 Flash** | Multi-modal AI model |
+| **DuckDuckGo** | Web search (Riya agent) |
+
+### Data & Config
+| Technology | Purpose |
+|------------|---------|
+| **Firestore** | Email collection & analytics |
+| **PyYAML** | Prompt configuration |
+| **python-decouple** | Environment variables |
+
+---
+
+## Configuration
+
+### Environment Variables
 
 ```bash
-# Optional: Provide a default Gemini API key
-DEFAULT_GEMINI_API_KEY=your_key_here
+# Required
+DEFAULT_GEMINI_API_KEY=your_gemini_key
 
-# Optional: Allow users to use their own API key (true/false)
-ALLOW_USER_API_KEY=true
+# Model Settings
+GEMINI_MODEL_ID=gemini-2.5-flash-preview-09-2025
+GEMINI_TEMPERATURE=0.7
+GEMINI_MAX_TOKENS=2000
+
+# Social Links (sidebar)
+LINKEDIN_URL=https://linkedin.com/in/yourprofile
+WEBSITE_URL=https://yoursite.com
+CONTACT_EMAIL=you@example.com
 ```
 
 ### Customizing Prompts
 
-All agent prompts are in `config/prompts.yaml`. The prompts are optimized using advanced prompt engineering techniques:
+All agent prompts are in `config/prompts.yaml`:
 
-**What You Can Customize:**
-- **Agent Instructions:** Role definitions, core principles, tone guidelines, and safety boundaries
-- **Runtime Prompts:** Structured prompts with clear sections, formatting requirements, and word count guidelines
-- **UI Elements:** App title, welcome messages, section titles, and loading messages
-- **Model Settings:** Model ID, temperature, and token limits
-- **Input Limits:** Maximum text length, file size, and file count
-
-**Prompt Engineering Features:**
-- Clear role definitions with specific expertise
-- Structured output formats with markdown requirements
-- Context-aware instructions for multi-modal inputs
-- Progressive difficulty (for routine planner)
-- Evidence-based suggestions
-- Empowerment-focused language
-
-Example:
 ```yaml
 agents:
   therapist:
-    instructions:
-      - "You are a licensed mental health therapist specializing in relationship recovery..."
-      - "Core Principles:"
-      - "  1. Active Listening: Acknowledge and validate ALL emotions..."
-    runtime_prompt: |
-      **Context Analysis:**
-      User's emotional state: {user_input}
-      
-      **Your Task:**
-      Provide a compassionate response with:
-      1. **Validates Their Feelings** (First paragraph)
-      ...
+    name: "Maya"
+    instructions: "..."  # System prompt
+    runtime_prompt: "..."  # User-facing template
 ```
 
 ---
 
-## 📋 Usage
+## Project Structure
 
-1. **Enter Your Feelings** - Share what you're going through in the text area
-2. **Upload Screenshots (Optional)** - Add chat screenshots for context
-3. **Get Your Recovery Plan** - Click the button to receive personalized support from all four agents
-4. **Follow the Guidance** - Review emotional support, closure exercises, recovery routines, and honest feedback
-
----
-
-## 🧑‍💻 Technical Stack
-
-- **Frontend:** Streamlit (Python)
-- **AI Framework:** Agno
-- **AI Model:** Google Gemini 2.5 Flash
-- **Image Processing:** Pillow + Agno Image
-- **Configuration:** PyYAML, python-decouple
-- **Search Integration:** DuckDuckGo (for Brutal Honesty Agent)
-
----
-
-## 🔐 Privacy & Security
-
-We take your privacy seriously:
-
-- ✅ **No user accounts or authentication** - Use anonymously
-- ✅ **No server-side data storage** - Conversations aren't saved
-- ✅ **Automatic file cleanup** - Uploaded images deleted after processing
-- ✅ **Input validation** - Protection against injection attacks
-- ✅ **Secure API key handling** - Keys are masked and never exposed
-- ✅ **No third-party tracking** - No analytics or cookies
-
-### Security Features
-
-- Input sanitization to prevent prompt injection
-- File size limits (10MB per file, 5 files max)
-- Text length limits (5000 characters)
-- Automatic cleanup of temporary files
-- Error handling to prevent information leakage
-
----
-
-## 🎯 Agents Overview
-
-### 🤗 Maya
-Provides empathetic emotional support with a structured framework:
-- **Emotional Validation:** Acknowledges and validates all feelings without judgment
-- **Understanding:** Reflects back what you're experiencing and normalizes your pain
-- **Gentle Perspective:** Offers insights with appropriate light humor when healing
-- **Hope & Encouragement:** Ends with forward-looking, empowering statements
-- **Multi-modal Analysis:** Analyzes emotional cues from both text and images
-
-**Response Format:** 150-250 words with clear paragraph structure
-
-### ✍️ Harper
-Creates comprehensive closure toolkits with four distinct components:
-- **Unsent Message Template:** Fill-in templates for expressing unsent feelings
-- **Emotional Release Exercise:** Step-by-step exercises (5-7 steps) with therapeutic benefits
-- **Closure Ritual:** Specific, meaningful rituals with symbolism and timing
-- **Moving Forward Strategy:** 3-step action plan (immediate, short-term, long-term)
-
-**Response Format:** 300-400 words with clear markdown sections
-
-### 📅 Jonas
-Designs personalized 7-day recovery challenges with progressive difficulty:
-- **Day-by-Day Breakdown:** Morning, afternoon, and evening activities for each day
-- **Progressive Structure:** Days 1-2 (emotional release) → Days 3-4 (movement/connection) → Days 5-6 (confidence building) → Day 7 (celebration)
-- **Social Media Detox:** Specific guidelines with limits and alternative activities
-- **Healing Playlists:** Three categories (Emotional Release, Empowerment, Hope & Healing) with 5-7 songs each and therapeutic explanations
-
-**Response Format:** 500-700 words with specific, actionable activities
-
-### 💪 Riya
-Offers objective, constructive analysis in four comprehensive sections:
-- **Objective Analysis:** Facts, patterns, red flags, and contributing factors
-- **Root Cause Analysis:** Core issues, communication breakdowns, compatibility problems
-- **Growth Opportunities:** Self-awareness, relationship skills, boundaries, values alignment
-- **Actionable Steps:** 5-7 specific steps (immediate, short-term, medium-term, long-term, prevention)
-
-**Response Format:** 400-600 words with direct but respectful language
-
----
-
-## 🎨 Customization
-
-### Changing Agent Behavior
-
-Edit `config/prompts.yaml` to modify agent personalities, instructions, and runtime prompts. The prompts use advanced prompt engineering techniques:
-
-**Key Areas to Customize:**
-- **Instructions:** Define role, core principles, tone guidelines, and safety boundaries
-- **Runtime Prompts:** Structure the prompts with clear sections, formatting requirements, and word counts
-- **Response Format:** Specify markdown formatting, paragraph structure, and length guidelines
-
-Example structure:
-```yaml
-agents:
-  therapist:
-    instructions:
-      - "You are a licensed mental health therapist..."
-      - "Core Principles:"
-      - "  1. Active Listening: ..."
-      - "Response Structure:"
-      - "  - Start with emotional validation..."
-    runtime_prompt: |
-      **Context Analysis:**
-      User's emotional state: {user_input}
-      
-      **Your Task:**
-      Provide a compassionate response that:
-      1. **Validates Their Feelings** (First paragraph)
-      ...
 ```
-
-### UI Customization
-
-Update UI elements in `config/prompts.yaml`:
-
-```yaml
-ui:
-  app_title: "Your Custom Title"
-  welcome_message: "Your custom welcome message"
-  privacy_notice: "Your custom privacy notice"
-  section_titles:
-    therapist: "🤗 Your Custom Title"
-  loading_messages:
-    therapist: "Your loading message..."
-```
-
-### Model Configuration
-
-Adjust model settings in `config/prompts.yaml`:
-
-```yaml
-model:
-  id: "gemini-2.5-flash"  # Change model version
-  temperature: 0.7         # Adjust creativity (0.0-1.0)
-  max_tokens: 2000         # Maximum response length
+Breakup Recovery Agent/
+├── ai_breakup_recovery_agent.py  # Main application
+├── config/
+│   └── prompts.yaml              # Agent prompts & UI config
+├── docs/
+│   ├── FEATURES.md               # Feature documentation
+│   ├── DECISIONS_AND_ISSUES.md   # Issues & key decisions
+│   └── MUSIC_API_NOTES.md        # Music implementation notes
+├── .streamlit/
+│   └── secrets.toml.example      # Firebase config template
+├── .env.example                  # Environment variable template
+├── requirements.txt              # Python dependencies
+└── README.md                     # You are here!
 ```
 
 ---
 
-## 📦 Dependencies
+## Deployment
 
-All dependencies are pinned for stability:
+### Streamlit Cloud (Recommended)
 
-```
-streamlit==1.44.1          # Web framework
-pillow==11.1.0             # Image processing
-agno==2.2.10               # AI agent framework
-google-genai==1.50.1       # Google Gemini API
-ddgs                        # DuckDuckGo search (latest)
-python-decouple==3.8       # Environment config
-PyYAML==6.0.2              # YAML parsing
-```
+1. Push to GitHub
+2. Connect to [Streamlit Cloud](https://streamlit.io/cloud)
+3. Add secrets in app settings:
+   - `DEFAULT_GEMINI_API_KEY`
+   - `[firebase]` section (optional, for analytics)
+4. Deploy!
 
----
-
-## 🤝 Contributing
-
-Contributions are welcome! Feel free to:
-
-- Report bugs
-- Suggest new features
-- Improve prompts and agent behaviors
-- Enhance privacy and security
-- Improve documentation
+**Live Demo:** [umang-breakup-recovery-agent.streamlit.app](https://umang-breakup-recovery-agent.streamlit.app/)
 
 ---
 
-## 📝 License
+## Contributing
 
-This project is open source and available under the MIT License.
+Want to make this even better?
 
----
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a PR
 
-## 🙏 Acknowledgments
-
-- Built with [Streamlit](https://streamlit.io/)
-- Powered by [Google Gemini](https://deepmind.google/technologies/gemini/)
-- Agent framework by [Agno](https://github.com/agno-ai/agno)
-
----
-
-## 💬 Support
-
-If you find this helpful, please:
-- ⭐ Star this repository
-- 🐛 Report issues
-- 💡 Share your feedback
-- 🤝 Contribute improvements
+**Ideas welcome:**
+- New agent personalities
+- Improved prompts
+- Additional music categories
+- UI enhancements
 
 ---
 
-**Made with ❤️ by Umang** | Helping hearts heal, one conversation at a time
+## License
+
+MIT License - Feel free to use, modify, and share!
 
 ---
 
-## ⚠️ Disclaimer
+## Star This Repo!
+
+If this helped you heal, give it a star!
+
+Made with love by **Umang**
+
+*Helping hearts heal, one conversation at a time.*
+
+---
+
+## Disclaimer
 
 This application provides AI-generated support and should not replace professional mental health services. If you're experiencing severe emotional distress, please seek help from a qualified mental health professional.
 
 **Crisis Resources:**
-- National Suicide Prevention Lifeline: 988
-- Crisis Text Line: Text HOME to 741741
-- International Association for Suicide Prevention: https://www.iasp.info/resources/Crisis_Centres/
+- **National Suicide Prevention Lifeline:** 988
+- **Crisis Text Line:** Text HOME to 741741
+- **International Resources:** [iasp.info/resources/Crisis_Centres](https://www.iasp.info/resources/Crisis_Centres/)
+
+---
+
+**[Try it Live](https://umang-breakup-recovery-agent.streamlit.app/)** | **[Report Issues](https://github.com/Umang00/Breakup-Recovery-Agent/issues)** | **[Star on GitHub](https://github.com/Umang00/Breakup-Recovery-Agent)**

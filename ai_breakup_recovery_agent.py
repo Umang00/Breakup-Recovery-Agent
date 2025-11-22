@@ -562,6 +562,47 @@ def main():
         _main_content(config, ui_config, agents_config)
 
 
+@st.fragment
+def waitlist_section():
+    """
+    Waitlist email signup section as a fragment.
+    Using @st.fragment allows this section to rerun independently
+    without interrupting the main app (e.g., during agent analysis).
+    """
+    st.markdown("### 💬 Join the Waitlist")
+
+    st.markdown("Want to have a real conversation with **Maya**?")
+
+    st.markdown("""
+Currently, our agents listen and guide. Soon, you can chat with them back-and-forth like a real friend.
+
+**You decide if they remember you or not.**
+100% Private. 100% Your Control.
+    """)
+
+    # Initialize session state for email subscription
+    if "email_subscribed" not in st.session_state:
+        st.session_state.email_subscribed = False
+
+    if not st.session_state.email_subscribed:
+        email_input = st.text_input(
+            "Get Early Access",
+            placeholder="you@example.com",
+            key="waitlist_email_input"
+        )
+        if st.button("Notify Me", type="primary", key="waitlist_submit"):
+            if email_input:
+                if save_email_to_firestore(email_input):
+                    st.session_state.email_subscribed = True
+                    st.rerun(scope="fragment")
+                else:
+                    st.error("Please enter a valid email address.")
+            else:
+                st.warning("Please enter your email address.")
+    else:
+        st.success("You're on the list!")
+
+
 def _main_content(config, ui_config, agents_config):
     """Main content of the application (wrapped by analytics)"""
 
@@ -595,43 +636,9 @@ def _main_content(config, ui_config, agents_config):
         st.markdown("### 🔒 Privacy & Security")
         st.markdown(ui_config['privacy_notice'])
 
-        # Waitlist Section
+        # Waitlist Section (fragment to prevent main app rerun during analysis)
         st.markdown("---")
-        st.markdown("### 💬 Join the Waitlist")
-
-        st.markdown("Want to have a real conversation with **Maya**?")
-
-        st.markdown("""
-Currently, our agents listen and guide. Soon, you can chat with them back-and-forth like a real friend.
-
-**You decide if they remember you or not.**
-100% Private. 100% Your Control.
-        """)
-
-        # Initialize session state for email subscription
-        if "email_subscribed" not in st.session_state:
-            st.session_state.email_subscribed = False
-        if "subscription_email" not in st.session_state:
-            st.session_state.subscription_email = ""
-
-        if not st.session_state.email_subscribed:
-            with st.form(key="email_subscription_form"):
-                email_input = st.text_input(
-                    "Get Early Access",
-                    placeholder="you@example.com",
-                    key="email_input_field"
-                )
-                submit_button = st.form_submit_button("Notify Me", type="primary")
-
-                if submit_button and email_input:
-                    if save_email_to_firestore(email_input):
-                        st.session_state.email_subscribed = True
-                        st.session_state.subscription_email = email_input
-                        st.rerun()
-                    else:
-                        st.error("Please enter a valid email address.")
-        else:
-            st.success(f"You're on the list!")
+        waitlist_section()
 
     # Main content
     st.title(ui_config['app_title'])
