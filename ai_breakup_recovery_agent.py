@@ -779,6 +779,25 @@ def _main_content(config, ui_config, agents_config):
             else:
                 st.error("Failed to initialize agents. Please check your API key and try again.")
 
+    # Footer section
+    st.markdown("---")
+    if social_urls["email"]:
+        st.markdown(f"""
+<div style="text-align: center;">
+<h3>👨‍💻 A Humble Request</h3>
+<p>It takes 10s to break a system, but days to build one. Please spare my API credits!</p>
+<p>Rather than stress-testing, <a href="mailto:{social_urls['email']}">drop me a mail</a> and I'll share the full list of limitations myself. Let's collaborate instead!</p>
+</div>
+        """, unsafe_allow_html=True)
+    else:
+        st.markdown("""
+<div style="text-align: center;">
+<h3>👨‍💻 A Humble Request</h3>
+<p>It takes 10s to break a system, but days to build one. Please spare my API credits!</p>
+<p>Rather than stress-testing, drop me a mail and I'll share the full list of limitations myself. Let's collaborate instead!</p>
+</div>
+        """, unsafe_allow_html=True)
+
 
 if __name__ == "__main__":
     main()
