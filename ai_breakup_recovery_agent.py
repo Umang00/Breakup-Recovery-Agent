@@ -35,11 +35,20 @@ temp_files_created = []
 _firestore_temp_key_path = None
 
 
+def has_firebase_secrets() -> bool:
+    """Quick check if Firebase secrets are configured without accessing them."""
+    try:
+        return "firebase" in st.secrets
+    except Exception:
+        return False
+
+
 def get_firestore_key_path() -> Optional[str]:
     """
     Creates a temporary JSON file from st.secrets["firebase"] for Firestore authentication.
     Required because streamlit-analytics2 expects a file path, not a dict.
     Returns the path to the temporary credentials file, or None if secrets not configured.
+    Uses caching to avoid repeated file creation.
     """
     global _firestore_temp_key_path
 
@@ -47,12 +56,11 @@ def get_firestore_key_path() -> Optional[str]:
     if _firestore_temp_key_path and os.path.exists(_firestore_temp_key_path):
         return _firestore_temp_key_path
 
-    try:
-        # Check if firebase secrets are configured
-        if "firebase" not in st.secrets:
-            logger.warning("Firebase secrets not configured in st.secrets")
-            return None
+    # Quick check before accessing secrets
+    if not has_firebase_secrets():
+        return None
 
+    try:
         # Convert st.secrets["firebase"] to a dictionary
         firebase_secrets = dict(st.secrets["firebase"])
 
@@ -72,14 +80,15 @@ def get_firestore_key_path() -> Optional[str]:
         return None
 
 
+@st.cache_resource
 def get_firestore_client() -> Optional[firestore.Client]:
     """
     Creates a Firestore client using credentials from st.secrets.
     Returns None if credentials are not configured.
+    Uses Streamlit caching to avoid recreating client on every call.
     """
     try:
-        if "firebase" not in st.secrets:
-            logger.warning("Firebase secrets not configured")
+        if not has_firebase_secrets():
             return None
 
         # Create credentials from the secrets dictionary
@@ -88,6 +97,7 @@ def get_firestore_client() -> Optional[firestore.Client]:
 
         # Create and return the Firestore client
         db = firestore.Client(credentials=creds, project=firebase_secrets.get("project_id"))
+        logger.info("Firestore client created and cached")
         return db
 
     except Exception as e:
@@ -144,158 +154,223 @@ def cleanup_firestore_temp_file():
 atexit.register(cleanup_firestore_temp_file)
 
 
-# Curated Music Database - 105 songs, 35 per category
-# All songs are verified therapeutic hits for breakup recovery
+def get_social_urls() -> Dict[str, str]:
+    """Get social media URLs from environment variables"""
+    return {
+        "linkedin": env_config("LINKEDIN_URL", default=""),
+        "website": env_config("WEBSITE_URL", default=""),
+        "email": env_config("CONTACT_EMAIL", default="")
+    }
+
+
+# Curated Music Database - 115 songs organized by category and era
+# Structure: Category -> Era -> Songs (enables balanced selection across time periods)
 CURATED_SONGS = {
     "release": {
         "name": "Emotional Release",
-        "description": "For crying, feeling, and validating emotions",
-        "songs": [
-            {"title": "Driver's License", "artist": "Olivia Rodrigo", "tag": "Modern Classic"},
-            {"title": "Someone Like You", "artist": "Adele", "tag": "Ballad"},
-            {"title": "All Too Well (10 Minute Version)", "artist": "Taylor Swift", "tag": "Storytelling"},
-            {"title": "Glimpse of Us", "artist": "Joji", "tag": "Melancholy"},
-            {"title": "Liability", "artist": "Lorde", "tag": "Introspective"},
-            {"title": "Back to Black", "artist": "Amy Winehouse", "tag": "Soul/Grief"},
-            {"title": "The Night We Met", "artist": "Lord Huron", "tag": "Haunting"},
-            {"title": "Lose You to Love Me", "artist": "Selena Gomez", "tag": "Closure"},
-            {"title": "Skinny Love", "artist": "Bon Iver", "tag": "Indie Folk"},
-            {"title": "Fix You", "artist": "Coldplay", "tag": "Comfort"},
-            {"title": "Stone Cold", "artist": "Demi Lovato", "tag": "Vocals"},
-            {"title": "I Fall Apart", "artist": "Post Malone", "tag": "Modern Heartbreak"},
-            {"title": "Happier Than Ever", "artist": "Billie Eilish", "tag": "Build-up/Release"},
-            {"title": "Dancing On My Own", "artist": "Robyn", "tag": "Sad Disco"},
-            {"title": "Exile", "artist": "Taylor Swift ft. Bon Iver", "tag": "Duet"},
-            {"title": "Falling", "artist": "Harry Styles", "tag": "Ballad"},
-            {"title": "Jealous", "artist": "Labrinth", "tag": "Deep Sadness"},
-            {"title": "Stay", "artist": "Rihanna ft. Mikky Ekko", "tag": "Vulnerable"},
-            {"title": "Before You Go", "artist": "Lewis Capaldi", "tag": "Regret"},
-            {"title": "Listen before i go", "artist": "Billie Eilish", "tag": "Heavy/Slow"},
-            {"title": "Nothing Compares 2 U", "artist": "Sinéad O'Connor", "tag": "Classic"},
-            {"title": "Jar of Hearts", "artist": "Christina Perri", "tag": "Angsty"},
-            {"title": "Grenade", "artist": "Bruno Mars", "tag": "Desperation"},
-            {"title": "Sign of the Times", "artist": "Harry Styles", "tag": "Epic"},
-            {"title": "Say Something", "artist": "A Great Big World", "tag": "Giving Up"},
-            {"title": "Un-break My Heart", "artist": "Toni Braxton", "tag": "R&B Classic"},
-            {"title": "Already Gone", "artist": "Kelly Clarkson", "tag": "Acceptance"},
-            {"title": "One More Light", "artist": "Linkin Park", "tag": "Mourning"},
-            {"title": "Creep", "artist": "Radiohead", "tag": "Alternative"},
-            {"title": "Wait", "artist": "M83", "tag": "Atmospheric"},
-            {"title": "Let Her Go", "artist": "Passenger", "tag": "Acoustic"},
-            {"title": "Hello", "artist": "Adele", "tag": "Powerhouse"},
-            {"title": "Bleeding Love", "artist": "Leona Lewis", "tag": "2000s Pop"},
-            {"title": "Traitor", "artist": "Olivia Rodrigo", "tag": "Betrayal"},
-            {"title": "Kill Bill", "artist": "SZA", "tag": "Dark/Honest"}
-        ]
+        "ui_header": "Let It All Out",
+        "description": "Sadness, Grief, Crying, Catharsis",
+        "eras": {
+            "viral_now": {
+                "name": "Viral Now (2023-2025)",
+                "songs": [
+                    {"title": "What Was I Made For?", "artist": "Billie Eilish", "tag": "Existential Sadness"},
+                    {"title": "Die With A Smile", "artist": "Lady Gaga & Bruno Mars", "tag": "Power Ballad"},
+                    {"title": "Vampire", "artist": "Olivia Rodrigo", "tag": "Betrayal"},
+                    {"title": "The Smallest Man Who Ever Lived", "artist": "Taylor Swift", "tag": "Anger/Grief"},
+                    {"title": "Casual", "artist": "Chappell Roan", "tag": "Situationship Pain"}
+                ]
+            },
+            "gen_z": {
+                "name": "Gen Z Anthems (2018-2022)",
+                "songs": [
+                    {"title": "Driver's License", "artist": "Olivia Rodrigo", "tag": "Modern Classic"},
+                    {"title": "Glimpse of Us", "artist": "Joji", "tag": "Melancholy"},
+                    {"title": "Liability", "artist": "Lorde", "tag": "Introspective"},
+                    {"title": "Happier Than Ever", "artist": "Billie Eilish", "tag": "Build-up/Release"},
+                    {"title": "Traitor", "artist": "Olivia Rodrigo", "tag": "Betrayal"},
+                    {"title": "Listen before i go", "artist": "Billie Eilish", "tag": "Heavy/Slow"},
+                    {"title": "Falling", "artist": "Harry Styles", "tag": "Ballad"},
+                    {"title": "Lose You to Love Me", "artist": "Selena Gomez", "tag": "Closure"}
+                ]
+            },
+            "streaming_era": {
+                "name": "Streaming Era (2008-2017)",
+                "songs": [
+                    {"title": "All Too Well (10 Minute Version)", "artist": "Taylor Swift", "tag": "Storytelling"},
+                    {"title": "Someone Like You", "artist": "Adele", "tag": "Ballad"},
+                    {"title": "Back to Black", "artist": "Amy Winehouse", "tag": "Soul/Grief"},
+                    {"title": "Skinny Love", "artist": "Bon Iver", "tag": "Indie Folk"},
+                    {"title": "Stay", "artist": "Rihanna ft. Mikky Ekko", "tag": "Vulnerable"},
+                    {"title": "Say Something", "artist": "A Great Big World", "tag": "Giving Up"},
+                    {"title": "Jealous", "artist": "Labrinth", "tag": "Deep Sadness"},
+                    {"title": "The Night We Met", "artist": "Lord Huron", "tag": "Haunting"},
+                    {"title": "Stone Cold", "artist": "Demi Lovato", "tag": "Vocals"}
+                ]
+            },
+            "classics": {
+                "name": "Timeless Classics (Pre-2008)",
+                "songs": [
+                    {"title": "Fix You", "artist": "Coldplay", "tag": "Comfort"},
+                    {"title": "Nothing Compares 2 U", "artist": "Sinéad O'Connor", "tag": "Classic"},
+                    {"title": "Un-break My Heart", "artist": "Toni Braxton", "tag": "R&B Classic"},
+                    {"title": "Creep", "artist": "Radiohead", "tag": "Alternative"},
+                    {"title": "One More Light", "artist": "Linkin Park", "tag": "Mourning"},
+                    {"title": "Let Her Go", "artist": "Passenger", "tag": "Acoustic"},
+                    {"title": "Bleeding Love", "artist": "Leona Lewis", "tag": "2000s Pop"},
+                    {"title": "Jar of Hearts", "artist": "Christina Perri", "tag": "Angsty"},
+                    {"title": "Dancing On My Own", "artist": "Robyn", "tag": "Sad Disco"}
+                ]
+            }
+        }
     },
     "empowerment": {
         "name": "Empowerment",
-        "description": "For confidence, energy, and independence",
-        "songs": [
-            {"title": "Flowers", "artist": "Miley Cyrus", "tag": "Self-Care"},
-            {"title": "Good as Hell", "artist": "Lizzo", "tag": "Mood Booster"},
-            {"title": "Since U Been Gone", "artist": "Kelly Clarkson", "tag": "Rock Pop"},
-            {"title": "I Will Survive", "artist": "Gloria Gaynor", "tag": "Disco Classic"},
-            {"title": "Don't Start Now", "artist": "Dua Lipa", "tag": "Moving On"},
-            {"title": "thank u, next", "artist": "Ariana Grande", "tag": "Gratitude"},
-            {"title": "We Are Never Ever Getting Back Together", "artist": "Taylor Swift", "tag": "Definitive"},
-            {"title": "Truth Hurts", "artist": "Lizzo", "tag": "Sassy"},
-            {"title": "Rolling in the Deep", "artist": "Adele", "tag": "Power"},
-            {"title": "Irreplaceable", "artist": "Beyoncé", "tag": "R&B Classic"},
-            {"title": "Before He Cheats", "artist": "Carrie Underwood", "tag": "Revenge/Country"},
-            {"title": "You Oughta Know", "artist": "Alanis Morissette", "tag": "90s Rage"},
-            {"title": "Titanium", "artist": "David Guetta ft. Sia", "tag": "Unbreakable"},
-            {"title": "Roar", "artist": "Katy Perry", "tag": "Anthem"},
-            {"title": "Stronger (What Doesn't Kill You)", "artist": "Kelly Clarkson", "tag": "Resilience"},
-            {"title": "Survivor", "artist": "Destiny's Child", "tag": "Independence"},
-            {"title": "So What", "artist": "P!nk", "tag": "Rock Attitude"},
-            {"title": "Single Ladies", "artist": "Beyoncé", "tag": "Upbeat"},
-            {"title": "New Rules", "artist": "Dua Lipa", "tag": "Guidebook"},
-            {"title": "Shake It Off", "artist": "Taylor Swift", "tag": "Fun"},
-            {"title": "Confident", "artist": "Demi Lovato", "tag": "Ego"},
-            {"title": "Look What You Made Me Do", "artist": "Taylor Swift", "tag": "Dark Pop"},
-            {"title": "Respect", "artist": "Aretha Franklin", "tag": "Soul Classic"},
-            {"title": "Girl on Fire", "artist": "Alicia Keys", "tag": "Inspirational"},
-            {"title": "Independent Women, Pt. 1", "artist": "Destiny's Child", "tag": "Throwback"},
-            {"title": "Part of Me", "artist": "Katy Perry", "tag": "Resilience"},
-            {"title": "Fighter", "artist": "Christina Aguilera", "tag": "Grit"},
-            {"title": "Love Myself", "artist": "Hailee Steinfeld", "tag": "Self-Love"},
-            {"title": "Shout Out to My Ex", "artist": "Little Mix", "tag": "Group Anthem"},
-            {"title": "Problem", "artist": "Ariana Grande ft. Iggy Azalea", "tag": "Pop Hit"},
-            {"title": "Sorry", "artist": "Beyoncé", "tag": "No Apologies"},
-            {"title": "Good 4 U", "artist": "Olivia Rodrigo", "tag": "Pop Punk"},
-            {"title": "Misery Business", "artist": "Paramore", "tag": "High Energy"},
-            {"title": "Born This Way", "artist": "Lady Gaga", "tag": "Anthem"},
-            {"title": "Break Free", "artist": "Ariana Grande", "tag": "Liberation"}
-        ]
+        "ui_header": "Reclaim Your Power",
+        "description": "Anger, Confidence, Energy, Ego-Boost",
+        "eras": {
+            "viral_now": {
+                "name": "Viral Now (2023-2025)",
+                "songs": [
+                    {"title": "Espresso", "artist": "Sabrina Carpenter", "tag": "Confidence"},
+                    {"title": "Good Luck, Babe!", "artist": "Chappell Roan", "tag": "Sassy/80s Vibe"},
+                    {"title": "Flowers", "artist": "Miley Cyrus", "tag": "Self-Care"},
+                    {"title": "we can't be friends", "artist": "Ariana Grande", "tag": "Moving On"},
+                    {"title": "Greedy", "artist": "Tate McRae", "tag": "Ego Boost"}
+                ]
+            },
+            "gen_z": {
+                "name": "Gen Z Anthems (2018-2022)",
+                "songs": [
+                    {"title": "Good 4 U", "artist": "Olivia Rodrigo", "tag": "Pop Punk"},
+                    {"title": "Don't Start Now", "artist": "Dua Lipa", "tag": "Moving On"},
+                    {"title": "thank u, next", "artist": "Ariana Grande", "tag": "Gratitude"},
+                    {"title": "Truth Hurts", "artist": "Lizzo", "tag": "Sassy"},
+                    {"title": "Good as Hell", "artist": "Lizzo", "tag": "Mood Booster"},
+                    {"title": "New Rules", "artist": "Dua Lipa", "tag": "Guidebook"},
+                    {"title": "Confident", "artist": "Demi Lovato", "tag": "Ego"},
+                    {"title": "Look What You Made Me Do", "artist": "Taylor Swift", "tag": "Revenge"}
+                ]
+            },
+            "streaming_era": {
+                "name": "Streaming Era (2008-2017)",
+                "songs": [
+                    {"title": "Shake It Off", "artist": "Taylor Swift", "tag": "Fun"},
+                    {"title": "Roar", "artist": "Katy Perry", "tag": "Anthem"},
+                    {"title": "Titanium", "artist": "David Guetta ft. Sia", "tag": "Unbreakable"},
+                    {"title": "Stronger (What Doesn't Kill You)", "artist": "Kelly Clarkson", "tag": "Resilience"},
+                    {"title": "We Are Never Ever Getting Back Together", "artist": "Taylor Swift", "tag": "Definitive"},
+                    {"title": "Rolling in the Deep", "artist": "Adele", "tag": "Power"},
+                    {"title": "Love Myself", "artist": "Hailee Steinfeld", "tag": "Self-Love"},
+                    {"title": "Shout Out to My Ex", "artist": "Little Mix", "tag": "Group Anthem"},
+                    {"title": "Girl on Fire", "artist": "Alicia Keys", "tag": "Inspirational"}
+                ]
+            },
+            "classics": {
+                "name": "Timeless Classics (Pre-2008)",
+                "songs": [
+                    {"title": "Since U Been Gone", "artist": "Kelly Clarkson", "tag": "Rock Pop"},
+                    {"title": "I Will Survive", "artist": "Gloria Gaynor", "tag": "Disco Classic"},
+                    {"title": "Single Ladies", "artist": "Beyoncé", "tag": "Upbeat"},
+                    {"title": "Irreplaceable", "artist": "Beyoncé", "tag": "R&B Classic"},
+                    {"title": "Before He Cheats", "artist": "Carrie Underwood", "tag": "Revenge/Country"},
+                    {"title": "You Oughta Know", "artist": "Alanis Morissette", "tag": "90s Rage"},
+                    {"title": "Survivor", "artist": "Destiny's Child", "tag": "Independence"},
+                    {"title": "So What", "artist": "P!nk", "tag": "Rock Attitude"},
+                    {"title": "Respect", "artist": "Aretha Franklin", "tag": "Soul Classic"},
+                    {"title": "Independent Women, Pt. 1", "artist": "Destiny's Child", "tag": "Throwback"}
+                ]
+            }
+        }
     },
     "healing": {
         "name": "Hope & Healing",
-        "description": "For peace, optimism, and moving forward",
-        "songs": [
-            {"title": "Clean", "artist": "Taylor Swift", "tag": "Recovery"},
-            {"title": "Here Comes the Sun", "artist": "The Beatles", "tag": "Sunshine"},
-            {"title": "Answer: Love Myself", "artist": "BTS", "tag": "K-Pop/Self-Love"},
-            {"title": "Vienna", "artist": "Billy Joel", "tag": "Perspective"},
-            {"title": "Put Your Records On", "artist": "Corinne Bailey Rae", "tag": "Chill"},
-            {"title": "Rainbow", "artist": "Kacey Musgraves", "tag": "After the Storm"},
-            {"title": "Unwritten", "artist": "Natasha Bedingfield", "tag": "Freedom"},
-            {"title": "Rise Up", "artist": "Andra Day", "tag": "Strength"},
-            {"title": "comethru", "artist": "Jeremy Zucker", "tag": "Gen Z Chill"},
-            {"title": "Three Little Birds", "artist": "Bob Marley", "tag": "Reassurance"},
-            {"title": "Dog Days Are Over", "artist": "Florence + The Machine", "tag": "Euphoria"},
-            {"title": "Golden Hour", "artist": "JVKE", "tag": "Modern Piano"},
-            {"title": "Matilda", "artist": "Harry Styles", "tag": "Letting Go"},
-            {"title": "Beautiful Day", "artist": "U2", "tag": "Classic Rock"},
-            {"title": "I'm Still Standing", "artist": "Elton John", "tag": "Upbeat Classic"},
-            {"title": "Landslide", "artist": "Fleetwood Mac", "tag": "Reflection"},
-            {"title": "Keep Your Head Up", "artist": "Andy Grammer", "tag": "Pop Folk"},
-            {"title": "Free", "artist": "Florence + The Machine", "tag": "Release"},
-            {"title": "Scars to Your Beautiful", "artist": "Alessia Cara", "tag": "Validation"},
-            {"title": "Just the Way You Are", "artist": "Bruno Mars", "tag": "Sweet"},
-            {"title": "Pocketful of Sunshine", "artist": "Natasha Bedingfield", "tag": "Nostalgia"},
-            {"title": "Walking on Sunshine", "artist": "Katrina and the Waves", "tag": "Happy 80s"},
-            {"title": "Lovely Day", "artist": "Bill Withers", "tag": "Groove"},
-            {"title": "Brave", "artist": "Sara Bareilles", "tag": "Courage"},
-            {"title": "Firework", "artist": "Katy Perry", "tag": "Uplifting"},
-            {"title": "Somewhere Over the Rainbow", "artist": "Israel Kamakawiwo'ole", "tag": "Ukulele/Calm"},
-            {"title": "Better Now", "artist": "Post Malone", "tag": "Peaceful Rap"},
-            {"title": "The Climb", "artist": "Miley Cyrus", "tag": "Journey"},
-            {"title": "Feeling Good", "artist": "Nina Simone", "tag": "Soul Jazz"},
-            {"title": "Stand by Me", "artist": "Ben E. King", "tag": "Support"},
-            {"title": "Count on Me", "artist": "Bruno Mars", "tag": "Friendship"},
-            {"title": "What a Wonderful World", "artist": "Louis Armstrong", "tag": "Gratitude"},
-            {"title": "Sunday Morning", "artist": "Maroon 5", "tag": "Easy Listening"},
-            {"title": "Solar Power", "artist": "Lorde", "tag": "Summer Vibe"},
-            {"title": "Fast Car", "artist": "Tracy Chapman", "tag": "Storytelling"}
-        ]
+        "ui_header": "New Beginnings",
+        "description": "Calm, Optimism, Sunshine, Peace",
+        "eras": {
+            "viral_now": {
+                "name": "Viral Now (2023-2025)",
+                "songs": [
+                    {"title": "Birds of a Feather", "artist": "Billie Eilish", "tag": "Light/Love"},
+                    {"title": "Too Sweet", "artist": "Hozier", "tag": "Groove/Self-Worth"},
+                    {"title": "Golden Hour", "artist": "JVKE", "tag": "Modern Piano"},
+                    {"title": "Texas Hold 'Em", "artist": "Beyoncé", "tag": "Fun/Country"},
+                    {"title": "Training Season", "artist": "Dua Lipa", "tag": "Standards"}
+                ]
+            },
+            "gen_z": {
+                "name": "Gen Z Anthems (2018-2022)",
+                "songs": [
+                    {"title": "Answer: Love Myself", "artist": "BTS", "tag": "K-Pop/Self-Love"},
+                    {"title": "Rainbow", "artist": "Kacey Musgraves", "tag": "After the Storm"},
+                    {"title": "comethru", "artist": "Jeremy Zucker", "tag": "Gen Z Chill"},
+                    {"title": "Matilda", "artist": "Harry Styles", "tag": "Letting Go"},
+                    {"title": "Solar Power", "artist": "Lorde", "tag": "Summer Vibe"},
+                    {"title": "Scars to Your Beautiful", "artist": "Alessia Cara", "tag": "Validation"},
+                    {"title": "Better Now", "artist": "Post Malone", "tag": "Peaceful Rap"},
+                    {"title": "Levitating", "artist": "Dua Lipa", "tag": "Dance"}
+                ]
+            },
+            "streaming_era": {
+                "name": "Streaming Era (2008-2017)",
+                "songs": [
+                    {"title": "Clean", "artist": "Taylor Swift", "tag": "Recovery"},
+                    {"title": "Rise Up", "artist": "Andra Day", "tag": "Strength"},
+                    {"title": "Unwritten", "artist": "Natasha Bedingfield", "tag": "Freedom"},
+                    {"title": "Pocketful of Sunshine", "artist": "Natasha Bedingfield", "tag": "Nostalgia"},
+                    {"title": "The Climb", "artist": "Miley Cyrus", "tag": "Journey"},
+                    {"title": "Brave", "artist": "Sara Bareilles", "tag": "Courage"},
+                    {"title": "Just the Way You Are", "artist": "Bruno Mars", "tag": "Sweet"},
+                    {"title": "Firework", "artist": "Katy Perry", "tag": "Uplifting"},
+                    {"title": "Dog Days Are Over", "artist": "Florence + The Machine", "tag": "Euphoria"}
+                ]
+            },
+            "classics": {
+                "name": "Timeless Classics (Pre-2008)",
+                "songs": [
+                    {"title": "Here Comes the Sun", "artist": "The Beatles", "tag": "Sunshine"},
+                    {"title": "Vienna", "artist": "Billy Joel", "tag": "Perspective"},
+                    {"title": "Put Your Records On", "artist": "Corinne Bailey Rae", "tag": "Chill"},
+                    {"title": "Three Little Birds", "artist": "Bob Marley", "tag": "Reassurance"},
+                    {"title": "Beautiful Day", "artist": "U2", "tag": "Classic Rock"},
+                    {"title": "I'm Still Standing", "artist": "Elton John", "tag": "Upbeat Classic"},
+                    {"title": "Landslide", "artist": "Fleetwood Mac", "tag": "Reflection"},
+                    {"title": "Lovely Day", "artist": "Bill Withers", "tag": "Groove"},
+                    {"title": "What a Wonderful World", "artist": "Louis Armstrong", "tag": "Gratitude"},
+                    {"title": "Fast Car", "artist": "Tracy Chapman", "tag": "Storytelling"}
+                ]
+            }
+        }
     }
 }
 
+# Era IDs for balanced selection
+ERA_IDS = ["viral_now", "gen_z", "streaming_era", "classics"]
 
-def get_music_recommendations_text(songs_per_category: int = 5) -> str:
+
+def get_music_recommendations_text() -> str:
     """
-    Get formatted music recommendations text for LLM context
-    Randomly selects songs from each category for variety
+    Get formatted music recommendations text for LLM context.
+    Selects one song from each era per category for balanced variety across time periods.
+    Total: 4 songs per category (one from each era) = 12 songs total.
     """
     text = "**Curated Song Recommendations for Breakup Recovery:**\n\n"
 
     for category_id in ['release', 'empowerment', 'healing']:
         category = CURATED_SONGS[category_id]
-        all_songs = category["songs"]
-
-        # Random selection for variety
-        selected = random.sample(all_songs, min(songs_per_category, len(all_songs)))
 
         text += f"### {category['name']}\n"
         text += f"*{category['description']}*\n\n"
 
-        for song in selected:
-            text += f"- **\"{song['title']}\"** by {song['artist']} ({song['tag']})\n"
+        # Select one random song from each era
+        for era_id in ERA_IDS:
+            era_songs = category["eras"][era_id]["songs"]
+            selected_song = random.choice(era_songs)
+            text += f"- **\"{selected_song['title']}\"** by {selected_song['artist']} ({selected_song['tag']})\n"
 
         text += "\n"
 
-    text += "*Note: These are curated therapeutic songs. Personalize based on user's situation and preferences.*"
+    text += "*Note: These songs span different eras. Personalize based on user's situation and music preferences.*"
     return text
 
 def cleanup_temp_files():
@@ -332,12 +407,6 @@ def get_default_api_key() -> Optional[str]:
     except UndefinedValueError:
         return None
 
-def allow_user_api_key() -> bool:
-    """Check if users are allowed to provide their own API key"""
-    try:
-        return env_config('ALLOW_USER_API_KEY', default=True, cast=bool)
-    except:
-        return True
 
 def get_model_config(yaml_config: Dict[str, Any]) -> Dict[str, Any]:
     """Get model configuration from environment variables with YAML fallback"""
@@ -471,21 +540,22 @@ def main():
         layout="wide"
     )
 
-    # Get Firestore credentials path for analytics
-    firestore_key_path = get_firestore_key_path()
-
-    # Configure analytics tracking
+    # Configure analytics tracking (lazy initialization)
     analytics_kwargs = {}
-    if firestore_key_path:
-        try:
-            firebase_secrets = dict(st.secrets["firebase"])
-            analytics_kwargs = {
-                "firestore_key_file": firestore_key_path,
-                "firestore_collection_name": "analytics",
-                "firestore_project_name": firebase_secrets.get("project_id")
-            }
-        except Exception as e:
-            logger.warning(f"Could not configure Firestore analytics: {str(e)}")
+
+    # Only initialize Firestore analytics if secrets are configured
+    if has_firebase_secrets():
+        firestore_key_path = get_firestore_key_path()
+        if firestore_key_path:
+            try:
+                firebase_secrets = dict(st.secrets["firebase"])
+                analytics_kwargs = {
+                    "firestore_key_file": firestore_key_path,
+                    "firestore_collection_name": "analytics",
+                    "firestore_project_name": firebase_secrets.get("project_id")
+                }
+            except Exception as e:
+                logger.warning(f"Could not configure Firestore analytics: {str(e)}")
 
     # Wrap app with analytics tracking
     with streamlit_analytics.track(**analytics_kwargs):
@@ -495,78 +565,48 @@ def main():
 def _main_content(config, ui_config, agents_config):
     """Main content of the application (wrapped by analytics)"""
 
-    # Initialize session state
-    if "api_key_input" not in st.session_state:
-        st.session_state.api_key_input = ""
+    # Use default API key directly
+    final_api_key = get_default_api_key()
 
-    # Get default API key
-    default_api_key = get_default_api_key()
-    allow_user_key = allow_user_api_key()
+    # Get social URLs for About section
+    social_urls = get_social_urls()
 
-    # Sidebar for API key configuration
+    # Sidebar
     with st.sidebar:
-        st.header("🔑 API Configuration")
+        # About Developer Section
+        st.header("👨‍💻 About the Developer")
+        st.markdown("**Umang Thakkar**")
+        st.markdown("Helping hearts heal, one conversation at a time.")
 
-        # Check if we have a default key
-        if default_api_key:
-            st.success("✅ Default API key configured")
+        # Social links as hyperlinks
+        social_links = []
+        if social_urls["linkedin"]:
+            social_links.append(f"[LinkedIn]({social_urls['linkedin']})")
+        if social_urls["website"]:
+            social_links.append(f"[Portfolio]({social_urls['website']})")
+        if social_urls["email"]:
+            social_links.append(f"[Email](mailto:{social_urls['email']})")
 
-            if allow_user_key:
-                use_own_key = st.checkbox(
-                    "Use my own API key instead",
-                    help="Check this to use your own Gemini API key"
-                )
-
-                if use_own_key:
-                    api_key = st.text_input(
-                        "Enter your Gemini API Key",
-                        value=st.session_state.api_key_input,
-                        type="password",
-                        help="Get your API key from Google AI Studio",
-                        key="api_key_widget"
-                    )
-                    if api_key != st.session_state.api_key_input:
-                        st.session_state.api_key_input = api_key
-                    final_api_key = api_key if api_key else default_api_key
-                else:
-                    final_api_key = default_api_key
-                    st.info("Using default API key")
-            else:
-                final_api_key = default_api_key
-                st.info("Using default API key")
-        else:
-            # No default key, user must provide their own
-            api_key = st.text_input(
-                "Enter your Gemini API Key",
-                value=st.session_state.api_key_input,
-                type="password",
-                help="Get your API key from Google AI Studio",
-                key="api_key_widget"
-            )
-
-            if api_key != st.session_state.api_key_input:
-                st.session_state.api_key_input = api_key
-
-            final_api_key = api_key
-
-            if not final_api_key:
-                st.info("### Get your FREE API key in 2 minutes! 🎉")
-                st.markdown("""
-                **Quick setup:**
-                1. Go to [Google AI Studio](https://makersuite.google.com/app/apikey)
-                2. Enable the Generative Language API in your [Google Cloud Console](https://console.developers.google.com/apis/api/generativelanguage.googleapis.com)
-                3. Copy and paste here - done! ✨
-                """)
+        if social_links:
+            st.markdown(" · ".join(social_links))
 
         # Privacy Information
         st.markdown("---")
         st.markdown("### 🔒 Privacy & Security")
         st.markdown(ui_config['privacy_notice'])
 
-        # Email Subscription Section
+        # Waitlist Section
         st.markdown("---")
-        st.markdown("### 📬 Stay Connected")
-        st.markdown("Get healing tips and updates delivered to your inbox.")
+        st.markdown("### 💬 Join the Waitlist")
+
+        st.markdown("Want to have a real conversation with **Maya**?")
+
+        st.markdown("""
+Currently, our agents listen and guide. Soon, you can chat with them back-and-forth like a real friend.
+
+**You decide if they remember you or not.**
+100% Private. 100% Your Control.
+        """)
 
         # Initialize session state for email subscription
         if "email_subscribed" not in st.session_state:
@@ -577,11 +617,11 @@ def _main_content(config, ui_config, agents_config):
         if not st.session_state.email_subscribed:
             with st.form(key="email_subscription_form"):
                 email_input = st.text_input(
-                    "Your email address",
+                    "Get Early Access",
                     placeholder="you@example.com",
                     key="email_input_field"
                 )
-                submit_button = st.form_submit_button("Subscribe", type="primary")
+                submit_button = st.form_submit_button("Notify Me", type="primary")
 
                 if submit_button and email_input:
                     if save_email_to_firestore(email_input):
@@ -591,7 +631,7 @@ def _main_content(config, ui_config, agents_config):
                     else:
                         st.error("Please enter a valid email address.")
         else:
-            st.success(f"✅ Subscribed as {st.session_state.subscription_email}")
+            st.success(f"You're on the list!")
 
     # Main content
     st.title(ui_config['app_title'])
@@ -732,14 +772,6 @@ def _main_content(config, ui_config, agents_config):
             else:
                 st.error("Failed to initialize agents. Please check your API key and try again.")
 
-    # Footer with branding
-    st.markdown("---")
-    st.markdown("""
-        <div style='text-align: center; padding: 20px;'>
-            <p style='font-size: 18px; margin-bottom: 10px;'>Made with ❤️ by <strong>Umang</strong></p>
-            <p style='font-size: 14px; color: #666;'>Helping hearts heal, one conversation at a time</p>
-        </div>
-    """, unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
