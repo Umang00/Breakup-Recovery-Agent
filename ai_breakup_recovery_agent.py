@@ -10,8 +10,13 @@ import tempfile
 import os
 import yaml
 import random
+import json
+import re
 from decouple import config as env_config, UndefinedValueError
 import atexit
+import streamlit_analytics2 as streamlit_analytics
+from google.cloud import firestore
+from google.oauth2 import service_account
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -25,6 +30,119 @@ MAX_FILES = 5
 
 # Track temp files for cleanup
 temp_files_created = []
+
+# Firestore credentials temp file path
+_firestore_temp_key_path = None
+
+
+def get_firestore_key_path() -> Optional[str]:
+    """
+    Creates a temporary JSON file from st.secrets["firebase"] for Firestore authentication.
+    Required because streamlit-analytics2 expects a file path, not a dict.
+    Returns the path to the temporary credentials file, or None if secrets not configured.
+    """
+    global _firestore_temp_key_path
+
+    # Return cached path if already created
+    if _firestore_temp_key_path and os.path.exists(_firestore_temp_key_path):
+        return _firestore_temp_key_path
+
+    try:
+        # Check if firebase secrets are configured
+        if "firebase" not in st.secrets:
+            logger.warning("Firebase secrets not configured in st.secrets")
+            return None
+
+        # Convert st.secrets["firebase"] to a dictionary
+        firebase_secrets = dict(st.secrets["firebase"])
+
+        # Create a temporary file for the credentials
+        temp_dir = tempfile.gettempdir()
+        _firestore_temp_key_path = os.path.join(temp_dir, "firestore_key_temp.json")
+
+        # Write the credentials to the temp file
+        with open(_firestore_temp_key_path, "w") as f:
+            json.dump(firebase_secrets, f)
+
+        logger.info("Firestore credentials temp file created successfully")
+        return _firestore_temp_key_path
+
+    except Exception as e:
+        logger.error(f"Error creating Firestore credentials file: {str(e)}")
+        return None
+
+
+def get_firestore_client() -> Optional[firestore.Client]:
+    """
+    Creates a Firestore client using credentials from st.secrets.
+    Returns None if credentials are not configured.
+    """
+    try:
+        if "firebase" not in st.secrets:
+            logger.warning("Firebase secrets not configured")
+            return None
+
+        # Create credentials from the secrets dictionary
+        firebase_secrets = dict(st.secrets["firebase"])
+        creds = service_account.Credentials.from_service_account_info(firebase_secrets)
+
+        # Create and return the Firestore client
+        db = firestore.Client(credentials=creds, project=firebase_secrets.get("project_id"))
+        return db
+
+    except Exception as e:
+        logger.error(f"Error creating Firestore client: {str(e)}")
+        return None
+
+
+def save_email_to_firestore(email: str) -> bool:
+    """
+    Saves an email address to the Firestore 'subscribers' collection.
+    Returns True if successful, False otherwise.
+    """
+    try:
+        db = get_firestore_client()
+        if db is None:
+            logger.error("Could not connect to Firestore")
+            return False
+
+        # Validate email format
+        email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        if not re.match(email_pattern, email):
+            logger.warning(f"Invalid email format: {email}")
+            return False
+
+        # Save to Firestore with server timestamp
+        doc_ref = db.collection("subscribers").document()
+        doc_ref.set({
+            "email": email.lower().strip(),
+            "subscribed_at": firestore.SERVER_TIMESTAMP,
+            "source": "breakup_recovery_app"
+        })
+
+        logger.info(f"Email saved to Firestore: {email}")
+        return True
+
+    except Exception as e:
+        logger.error(f"Error saving email to Firestore: {str(e)}")
+        return False
+
+
+def cleanup_firestore_temp_file():
+    """Clean up the temporary Firestore credentials file"""
+    global _firestore_temp_key_path
+    if _firestore_temp_key_path and os.path.exists(_firestore_temp_key_path):
+        try:
+            os.remove(_firestore_temp_key_path)
+            logger.info("Firestore temp credentials file cleaned up")
+        except Exception as e:
+            logger.error(f"Error cleaning up Firestore temp file: {str(e)}")
+        _firestore_temp_key_path = None
+
+
+# Register cleanup for Firestore temp file
+atexit.register(cleanup_firestore_temp_file)
+
 
 # Curated Music Database - 105 songs, 35 per category
 # All songs are verified therapeutic hits for breakup recovery
@@ -353,6 +471,30 @@ def main():
         layout="wide"
     )
 
+    # Get Firestore credentials path for analytics
+    firestore_key_path = get_firestore_key_path()
+
+    # Configure analytics tracking
+    analytics_kwargs = {}
+    if firestore_key_path:
+        try:
+            firebase_secrets = dict(st.secrets["firebase"])
+            analytics_kwargs = {
+                "firestore_key_file": firestore_key_path,
+                "firestore_collection_name": "analytics",
+                "firestore_project_name": firebase_secrets.get("project_id")
+            }
+        except Exception as e:
+            logger.warning(f"Could not configure Firestore analytics: {str(e)}")
+
+    # Wrap app with analytics tracking
+    with streamlit_analytics.track(**analytics_kwargs):
+        _main_content(config, ui_config, agents_config)
+
+
+def _main_content(config, ui_config, agents_config):
+    """Main content of the application (wrapped by analytics)"""
+
     # Initialize session state
     if "api_key_input" not in st.session_state:
         st.session_state.api_key_input = ""
@@ -420,6 +562,36 @@ def main():
         st.markdown("---")
         st.markdown("### 🔒 Privacy & Security")
         st.markdown(ui_config['privacy_notice'])
+
+        # Email Subscription Section
+        st.markdown("---")
+        st.markdown("### 📬 Stay Connected")
+        st.markdown("Get healing tips and updates delivered to your inbox.")
+
+        # Initialize session state for email subscription
+        if "email_subscribed" not in st.session_state:
+            st.session_state.email_subscribed = False
+        if "subscription_email" not in st.session_state:
+            st.session_state.subscription_email = ""
+
+        if not st.session_state.email_subscribed:
+            with st.form(key="email_subscription_form"):
+                email_input = st.text_input(
+                    "Your email address",
+                    placeholder="you@example.com",
+                    key="email_input_field"
+                )
+                submit_button = st.form_submit_button("Subscribe", type="primary")
+
+                if submit_button and email_input:
+                    if save_email_to_firestore(email_input):
+                        st.session_state.email_subscribed = True
+                        st.session_state.subscription_email = email_input
+                        st.rerun()
+                    else:
+                        st.error("Please enter a valid email address.")
+        else:
+            st.success(f"✅ Subscribed as {st.session_state.subscription_email}")
 
     # Main content
     st.title(ui_config['app_title'])

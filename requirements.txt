@@ -14,3 +14,8 @@ ddgs
 # Configuration Management
 python-decouple==3.8
 PyYAML==6.0.2
+
+# Analytics & Database
+streamlit-analytics2==0.10.5
+google-cloud-firestore==2.19.0
+google-auth==2.29.0
