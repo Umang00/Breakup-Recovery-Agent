@@ -491,8 +491,19 @@ def initialize_agents(api_key: str, config: Dict[str, Any]) -> tuple[Optional[Ag
         return therapist_agent, closure_agent, routine_planner_agent, brutal_honesty_agent
 
     except Exception as e:
+        error_str = str(e).lower()
         logger.error(f"Error initializing agents: {str(e)}")
-        st.error(f"Error initializing agents: {str(e)}")
+
+        # User-friendly error messages based on error type
+        if "quota" in error_str or "quota exceeded" in error_str:
+            st.error("⚠️ We're experiencing high demand! API quota exceeded. Please try again later.")
+        elif "rate limit" in error_str or "429" in error_str:
+            st.error("⏳ Too many requests right now. Please wait a moment and try again.")
+        elif "503" in error_str or "service unavailable" in error_str:
+            st.error("🔧 Service temporarily unavailable. Please try again in a few minutes.")
+        else:
+            st.error("Our service is temporarily unavailable. Please try again in a few minutes.")
+
         return None, None, None, None
 
 def process_images(files) -> List[AgnoImage]:
@@ -772,12 +783,23 @@ def _main_content(config, ui_config, agents_config):
                     logger.info("Processing complete, temp files cleaned up")
 
                 except Exception as e:
+                    error_str = str(e).lower()
                     logger.error(f"Error during analysis: {str(e)}")
-                    st.error("An error occurred during analysis. Please try again.")
+
+                    # User-friendly error messages based on error type
+                    if "quota" in error_str or "quota exceeded" in error_str:
+                        st.error("⚠️ We're experiencing high demand! API quota exceeded. Please try again later.")
+                    elif "rate limit" in error_str or "429" in error_str:
+                        st.error("⏳ Too many requests right now. Please wait a moment and try again.")
+                    elif "503" in error_str or "service unavailable" in error_str:
+                        st.error("🔧 Service temporarily unavailable. Please try again in a few minutes.")
+                    else:
+                        st.error("An error occurred during analysis. Please try again.")
+
                     # Clean up on error too
                     cleanup_temp_files()
             else:
-                st.error("Failed to initialize agents. Please check your API key and try again.")
+                st.error("Our service is temporarily unavailable. Please try again in a few minutes.")
 
     # Footer section
     st.markdown("---")
