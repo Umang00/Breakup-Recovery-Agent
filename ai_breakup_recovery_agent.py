@@ -464,8 +464,8 @@ def initialize_agents(api_key: str, config: Dict[str, Any]) -> tuple[Optional[Ag
         )
 
         # Get curated music recommendations for Jonas (routine planner)
-        # Uses random selection from 105-song curated database (35 per category)
-        music_recommendations = get_music_recommendations_text(songs_per_category=5)
+        # Uses era-based selection: one song from each era per category (12 songs total)
+        music_recommendations = get_music_recommendations_text()
 
         # Add music recommendations context to Jonas's instructions
         jonas_instructions = agents_config['routine_planner']['instructions']
