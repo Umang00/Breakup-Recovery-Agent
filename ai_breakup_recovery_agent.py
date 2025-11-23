@@ -552,17 +552,64 @@ def main():
     )
 
     # Hide Streamlit branding (keep menu for user features like Print)
+    # Using !important to override Streamlit Cloud's injected styles
     hide_streamlit_style = """
         <style>
-        footer {visibility: hidden;}
-        .stDeployButton {display: none;}
-        div[data-testid="stDecoration"] {visibility: hidden; height: 0%; position: fixed;}
-        div[data-testid="stStatusWidget"] {visibility: hidden; height: 0%; position: fixed;}
-        /* Hide header branding elements but keep menu visible */
-        header[data-testid="stHeader"] > div:first-child {display: none;}
-        /* Ensure menu stays visible */
-        #MainMenu {visibility: visible !important;}
-        button[title="View app source"] {display: none;}
+        /* 1. Remove the "Deploy" button */
+        .stDeployButton {
+            display: none !important;
+        }
+        
+        /* 2. Remove the "Fork this app" / GitHub Ribbon / Toolbar */
+        [data-testid="stToolbar"] {
+            display: none !important;
+        }
+        
+        /* 3. Remove the Footer */
+        footer {
+            display: none !important;
+        }
+        
+        /* 4. Remove decoration and status widgets */
+        div[data-testid="stDecoration"] {
+            display: none !important;
+        }
+        div[data-testid="stStatusWidget"] {
+            display: none !important;
+        }
+        
+        /* 5. Hide header branding elements but keep menu button visible */
+        /* Hide the header container's content (logo, title, etc.) */
+        header[data-testid="stHeader"] > div:first-child,
+        header[data-testid="stHeader"] > div:nth-child(2) {
+            display: none !important;
+        }
+        
+        /* 6. Explicitly show hamburger menu - multiple selectors for compatibility */
+        #MainMenu {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+        button[kind="header"],
+        button[data-testid="baseButton-header"],
+        header button[aria-label*="menu"],
+        header button[aria-label*="Menu"] {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+        
+        /* 7. Hide "View app source" button if present */
+        button[title="View app source"],
+        button[title="View the source code"] {
+            display: none !important;
+        }
+        
+        /* 8. Move the main content up so there is no white gap at the top */
+        .block-container {
+            padding-top: 1rem !important;
+        }
         </style>
     """
     st.markdown(hide_streamlit_style, unsafe_allow_html=True)
