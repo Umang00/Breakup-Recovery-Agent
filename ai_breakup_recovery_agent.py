@@ -551,6 +551,22 @@ def main():
         layout="wide"
     )
 
+    # Hide Streamlit branding (keep menu for user features like Print)
+    hide_streamlit_style = """
+        <style>
+        footer {visibility: hidden;}
+        .stDeployButton {display: none;}
+        div[data-testid="stDecoration"] {visibility: hidden; height: 0%; position: fixed;}
+        div[data-testid="stStatusWidget"] {visibility: hidden; height: 0%; position: fixed;}
+        /* Hide header branding elements but keep menu visible */
+        header[data-testid="stHeader"] > div:first-child {display: none;}
+        /* Ensure menu stays visible */
+        #MainMenu {visibility: visible !important;}
+        button[title="View app source"] {display: none;}
+        </style>
+    """
+    st.markdown(hide_streamlit_style, unsafe_allow_html=True)
+
     # Configure analytics tracking (lazy initialization)
     analytics_kwargs = {}
 
