@@ -23,7 +23,7 @@ jobs:
           # Install OCI CLI
           pip install oci-cli --quiet
           
-          # Setup config
+          # Setup OCI config
           mkdir -p ~/.oci
           echo "$OCI_CLI_KEY_CONTENT" > ~/.oci/oci_api_key.pem
           chmod 600 ~/.oci/oci_api_key.pem
@@ -36,6 +36,7 @@ jobs:
           tenancy=$OCI_CLI_TENANCY
           region=$OCI_CLI_REGION
           EOF
+          chmod 600 ~/.oci/config
           
           # Check if instance already exists
           INSTANCES=$(oci compute instance list \
@@ -61,12 +62,30 @@ jobs:
           OCI_CLI_FINGERPRINT: ${{ secrets.OCI_FINGERPRINT }}
           OCI_CLI_KEY_CONTENT: ${{ secrets.OCI_PRIVATE_KEY }}
           OCI_CLI_REGION: eu-frankfurt-1
+          SSH_PUBLIC_KEY: ${{ secrets.SSH_PUBLIC_KEY }}
         run: |
+          # Setup OCI config again (fresh runner step)
+          mkdir -p ~/.oci
+          echo "$OCI_CLI_KEY_CONTENT" > ~/.oci/oci_api_key.pem
+          chmod 600 ~/.oci/oci_api_key.pem
+          
+          cat > ~/.oci/config << EOF
+          [DEFAULT]
+          user=$OCI_CLI_USER
+          fingerprint=$OCI_CLI_FINGERPRINT
+          key_file=~/.oci/oci_api_key.pem
+          tenancy=$OCI_CLI_TENANCY
+          region=$OCI_CLI_REGION
+          EOF
+          chmod 600 ~/.oci/config
+          
+          # Write SSH key to file
+          echo "$SSH_PUBLIC_KEY" > /tmp/ssh_key.pub
+          
           # Variables
-          COMPARTMENT_ID="${{ secrets.OCI_TENANCY_OCID }}"
+          COMPARTMENT_ID="$OCI_CLI_TENANCY"
           SUBNET_ID="ocid1.subnet.oc1.eu-frankfurt-1.aaaaaaaad4qpodixqeoniakci3ys6k7jukw5srk36rzlpxpa5w7tmwmxtdra"
           IMAGE_ID="ocid1.image.oc1.eu-frankfurt-1.aaaaaaaajzudgoto32j5q245xjkm2p7nj6rrza2bb5yyqjgm56k4ib2to6sq"
-          SSH_KEY="${{ secrets.SSH_PUBLIC_KEY }}"
           
           ADS=("OGQp:EU-FRANKFURT-1-AD-1" "OGQp:EU-FRANKFURT-1-AD-2" "OGQp:EU-FRANKFURT-1-AD-3")
           
@@ -81,7 +100,7 @@ jobs:
               --display-name "Clawdbot-Server" \
               --image-id "$IMAGE_ID" \
               --subnet-id "$SUBNET_ID" \
-              --ssh-authorized-keys "$SSH_KEY" \
+              --ssh-authorized-keys-file /tmp/ssh_key.pub \
               --assign-public-ip true \
               2>&1) || true
             
@@ -92,14 +111,14 @@ jobs:
             elif echo "$RESULT" | grep -q "Out of host capacity"; then
               echo "❌ No capacity in $AD"
             else
-              echo "Unexpected result: $RESULT"
+              echo "Other result: $RESULT"
             fi
             
             sleep 2
           done
           
           echo "No capacity in any AD. Will retry next run."
-          exit 0  # Don't fail the workflow, just retry later
+          exit 0
 
       - name: Notify Success
         if: steps.check.outputs.exists == 'true'
