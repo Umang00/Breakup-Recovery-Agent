@@ -89,35 +89,51 @@ jobs:
           
           ADS=("OGQp:EU-FRANKFURT-1-AD-1" "OGQp:EU-FRANKFURT-1-AD-2" "OGQp:EU-FRANKFURT-1-AD-3")
           
-          for AD in "${ADS[@]}"; do
-            echo "Trying AD: $AD..."
+          # Try different sizes - largest first, fall back to smaller if no capacity
+          # All still within Always Free tier (up to 4 OCPU total)
+          SIZES=("4:24" "2:12" "1:6")  # Format: OCPU:MemoryGB
+          
+          for SIZE in "${SIZES[@]}"; do
+            OCPUS="${SIZE%%:*}"
+            MEMORY="${SIZE##*:}"
+            echo ""
+            echo "=========================================="
+            echo "Trying size: ${OCPUS} OCPU, ${MEMORY}GB RAM"
+            echo "=========================================="
             
-            RESULT=$(oci compute instance launch \
-              --compartment-id "$COMPARTMENT_ID" \
-              --availability-domain "$AD" \
-              --shape "VM.Standard.A1.Flex" \
-              --shape-config '{"ocpus": 4, "memoryInGBs": 24}' \
-              --display-name "Clawdbot-Server" \
-              --image-id "$IMAGE_ID" \
-              --subnet-id "$SUBNET_ID" \
-              --ssh-authorized-keys-file /tmp/ssh_key.pub \
-              --assign-public-ip true \
-              2>&1) || true
-            
-            if echo "$RESULT" | grep -q '"lifecycle-state": "PROVISIONING"'; then
-              echo "🎉 SUCCESS! VM created in $AD"
-              echo "$RESULT"
-              exit 0
-            elif echo "$RESULT" | grep -q "Out of host capacity"; then
-              echo "❌ No capacity in $AD"
-            else
-              echo "Other result: $RESULT"
-            fi
-            
-            sleep 2
+            for AD in "${ADS[@]}"; do
+              echo "  → Trying AD: $AD..."
+              
+              RESULT=$(oci compute instance launch \
+                --compartment-id "$COMPARTMENT_ID" \
+                --availability-domain "$AD" \
+                --shape "VM.Standard.A1.Flex" \
+                --shape-config "{\"ocpus\": ${OCPUS}, \"memoryInGBs\": ${MEMORY}}" \
+                --display-name "Clawdbot-Server" \
+                --image-id "$IMAGE_ID" \
+                --subnet-id "$SUBNET_ID" \
+                --ssh-authorized-keys-file /tmp/ssh_key.pub \
+                --assign-public-ip true \
+                2>&1) || true
+              
+              if echo "$RESULT" | grep -q '"lifecycle-state": "PROVISIONING"'; then
+                echo ""
+                echo "🎉🎉🎉 SUCCESS! VM created in $AD with ${OCPUS} OCPU, ${MEMORY}GB RAM 🎉🎉🎉"
+                echo ""
+                echo "$RESULT"
+                exit 0
+              elif echo "$RESULT" | grep -q "Out of host capacity"; then
+                echo "    ❌ No capacity"
+              else
+                echo "    ⚠️ Other: $(echo "$RESULT" | head -c 200)"
+              fi
+              
+              sleep 1
+            done
           done
           
-          echo "No capacity in any AD. Will retry next run."
+          echo ""
+          echo "No capacity for any size in any AD. Will retry next run."
           exit 0
 
       - name: Notify Success
